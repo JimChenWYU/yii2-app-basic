@@ -1,23 +1,22 @@
 <?php
 
-$params = require __DIR__ . '/params.php';
-$db = require __DIR__ . '/db.php';
+use app\support\helpers\Env;
 
 $config = [
     'id' => 'basic',
-    'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log'],
+    'bootstrap' => ['urlManager'],
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
     ],
     'components' => [
         'request' => [
+	        'parsers' => [
+		        'application/json' => 'yii\web\JsonParser',
+		        'multipart/form-data' => 'yii\web\MultipartFormDataParser',
+	        ],
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
-            'cookieValidationKey' => '',
-        ],
-        'cache' => [
-            'class' => 'yii\caching\FileCache',
+            'cookieValidationKey' => Env::get('APP_KEY', ''),
         ],
         'user' => [
             'identityClass' => 'app\models\User',
@@ -26,36 +25,18 @@ $config = [
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
-        'mailer' => [
-            'class' => 'yii\swiftmailer\Mailer',
-            // send all mails to a file by default. You have to set
-            // 'useFileTransport' to false and configure a transport
-            // for the mailer to send real emails.
-            'useFileTransport' => true,
-        ],
         'log' => [
-            'traceLevel' => YII_DEBUG ? 3 : 0,
-            'targets' => [
-                [
-                    'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning'],
-                ],
-            ],
+            'traceLevel' => Env::get('YII_DEBUG') ? 3 : 0,
         ],
-        'db' => $db,
-        /*
         'urlManager' => [
+        	'class' => 'app\components\core\Router',
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'rules' => [
-            ],
         ],
-        */
     ],
-    'params' => $params,
 ];
 
-if (YII_ENV_DEV) {
+if (Env::get('YII_ENV_DEV')) {
     // configuration adjustments for 'dev' environment
     $config['bootstrap'][] = 'debug';
     $config['modules']['debug'] = [

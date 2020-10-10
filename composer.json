@@ -12,14 +12,28 @@
         "irc": "irc://irc.freenode.net/yii",
         "source": "https://github.com/yiisoft/yii2"
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {
-        "php": ">=5.6.0",
+        "php": ">=7.2",
+        "ext-mbstring": "*",
+        "ext-bcmath": "*",
+        "ext-openssl": "*",
+        "ext-msgpack": "*",
         "yiisoft/yii2": "~2.0.14",
-        "yiisoft/yii2-bootstrap": "~2.0.0",
-        "yiisoft/yii2-swiftmailer": "~2.0.0 || ~2.1.0"
+        "yiisoft/yii2-swiftmailer": "~2.0.0 || ~2.1.0",
+        "yiisoft/composer-config-plugin": "~0.4",
+        "yiisoft/yii2-redis": "~2.0.0",
+        "yiisoft/yii2-queue": "^2.3",
+        "vlucas/phpdotenv": "~5.2",
+        "tightenco/collect": "^8.0",
+        "doctrine/inflector": "^2.0",
+        "samdark/yii2-psr-log-target": "^1.1",
+        "monolog/monolog": "^2.1",
+        "ramsey/uuid": "^4.1",
+        "voku/portable-ascii": "^1.5"
     },
     "require-dev": {
+        "roave/security-advisories": "dev-master",
         "yiisoft/yii2-debug": "~2.1.0",
         "yiisoft/yii2-gii": "~2.1.0",
         "yiisoft/yii2-faker": "~2.0.0",
@@ -37,13 +51,22 @@
             "enabled": false
         }
     },
+    "autoload": {
+        "psr-4": {
+            "app\\": "./"
+        }
+    },
     "scripts": {
         "post-install-cmd": [
             "yii\\composer\\Installer::postInstall"
         ],
         "post-create-project-cmd": [
             "yii\\composer\\Installer::postCreateProject",
-            "yii\\composer\\Installer::postInstall"
+            "yii\\composer\\Installer::postInstall",
+            "@php yii key/generate"
+        ],
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ]
     },
     "extra": {
@@ -56,9 +79,24 @@
                 }
             ]
         },
-        "yii\\composer\\Installer::postInstall": {
-            "generateCookieValidationKey": [
-                "config/web.php"
+        "config-plugin-output-dir": "bootstrap/cache",
+        "config-plugin": {
+            "dotenv": [
+                ".env"
+            ],
+            "defines": "config/constants.php",
+            "params": [
+                "config/params.php"
+            ],
+            "web": [
+                "config/common.php",
+                "config/web.php",
+                "modules/*/config/web.php"
+            ],
+            "console": [
+                "config/common.php",
+                "config/console.php",
+                "modules/*/config/console.php"
             ]
         }
     },
